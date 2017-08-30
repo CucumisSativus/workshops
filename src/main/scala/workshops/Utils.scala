@@ -15,7 +15,7 @@ object Utils {
 
   def performRequest(httpMethod: HttpMethod, url: String, requestEntity: RequestEntity = HttpEntity.Empty)
                     (implicit mat: Materializer, ac: ActorSystem, ec: ExecutionContext): String = {
-    performRequest(HttpRequest(method = httpMethod, uri = url))
+    performRequest(HttpRequest(method = httpMethod, uri = url, entity = requestEntity))
   }
 
   def performRequest(request: HttpRequest)
