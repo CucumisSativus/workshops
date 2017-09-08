@@ -42,7 +42,7 @@ object JsonInRoutes {
       }
     } ~ path("route2"){
       get{
-        completeWith(instanceOf[MyRandomClass]) { completeFunction => buildClass(completeFunction) }
+        completeWith(instanceOf[MyRandomClass])(buildClass)
       }
     } ~ path("route3"){
       post{
@@ -50,7 +50,8 @@ object JsonInRoutes {
       }
     }
 
-
+    //complete or recover with
+    //completeWith na fjuczerze
 
 
     val bindingFuture = Http().bindAndHandle(route, "localhost", 8080)
