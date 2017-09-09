@@ -1,4 +1,4 @@
-package workshops.akkaHttp.part3.exercises
+package workshops.akkaHttp.part3.answers
 
 import java.util.NoSuchElementException
 
@@ -80,7 +80,6 @@ class JsonHandlingSpec3 extends UnitSpec with ScalatestRouteTest {
            |  ]
            |}
          """.stripMargin.parseJson
-
       val requestJson = """{"cartId":"myId","item":{"name":"item","price":123}}"""
 
       Post("/checkout/add").withEntity(ContentTypes.`application/json`, requestJson) ~> controller.route ~> check {
@@ -112,10 +111,10 @@ object JsonHandlingSpec3 {
     def fromCart(id: String, cart: ShoppingCart) = ShoppingCartPresenter(id, cart.items)
   }
 
-  // uncomment and fill
-  //  implicit val itemFormat: RootJsonFormat[ShopItem]
-  //  implicit val addToCartFormat: RootJsonFormat[AddItemToCart]
-  //  implicit val cartFormat: RootJsonFormat[ShoppingCartPresenter]
+  implicit val itemFormat: RootJsonFormat[ShopItem] = jsonFormat2(ShopItem)
+  implicit val addToCartFormat: RootJsonFormat[AddItemToCart] = jsonFormat2(AddItemToCart)
+  implicit val cartFormat: RootJsonFormat[ShoppingCartPresenter] = jsonFormat2(ShoppingCartPresenter.apply)
+
   class CheckoutController(generateId: () => String = () => "randomId", initialCarts: Map[String, ShoppingCart] = Map()) {
     var carts: Map[String, ShoppingCart] = initialCarts
 
@@ -137,15 +136,17 @@ object JsonHandlingSpec3 {
     val route = pathPrefix("checkout") {
       path("new") {
         get {
-          ???
+          complete(buildCart)
         }
       } ~
         path("add") {
           post {
-            ???
+            handleWith(addToCart)
           }
         } ~ path(Segment) { cartId =>
-        ???
+        completeOrRecoverWith(getCartAndPresent(cartId)) {
+          case c: NoSuchElementException => complete(StatusCodes.NotFound)
+        }
       }
     }
   }
