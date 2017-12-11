@@ -4,7 +4,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import workshops.UnitSpec
-import workshops.akkaHttp.part1.answers.RoutingSpec.VisitorsCountController
+import workshops.akkaHttp.part1.exercises.RoutingSpec.VisitorsCountController
 
 class RoutingSpec extends UnitSpec with ScalatestRouteTest{
   "A visitor count controller" when {
