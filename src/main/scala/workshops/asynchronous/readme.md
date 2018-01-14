@@ -16,3 +16,5 @@ Do przyjęcia wiedzy z warsztatu potrzebna jest **podstawowa** znajomość skła
 ## Przygotowanie
 (Kiedy kod warsztatów będzie skończony)
 
+##Kolejność
+- basics
