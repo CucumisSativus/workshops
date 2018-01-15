@@ -44,4 +44,6 @@ object Utils {
     println("********************************************************")
     println()
   }
+
+  def blockUntilFutureReady(f: Future[_]): Unit = Await.ready(f, defaultTimeout)
 }
