@@ -1,15 +1,14 @@
-package workshops.asynchronous.part1.exercises
+package workshops.asynchronous.part1.answers
 
 import org.scalatest.concurrent.ScalaFutures
 import workshops.UnitSpec
-import workshops.asynchronous.part1.exercises.FuturesSpec.CheckoutController.{ExecutionError, ItemAdded, ItemCannotBeAdded}
-import workshops.asynchronous.part1.exercises.FuturesSpec.StockRepositoryACL.{NotEnoughItems, ReservationSuccessful, ReserveItemResult}
-import workshops.asynchronous.part1.exercises.FuturesSpec.{Order, OrderRepository}
+import workshops.asynchronous.part1.answers.FuturesSpec.CheckoutController.{ExecutionError, ItemAdded, ItemCannotBeAdded}
+import workshops.asynchronous.part1.answers.FuturesSpec.StockRepositoryACL.{NotEnoughItems, ReservationSuccessful, ReserveItemResult}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
 class FuturesSpec extends UnitSpec with ScalaFutures{
-  import workshops.asynchronous.part1.exercises.FuturesSpec._
+  import workshops.asynchronous.part1.answers.FuturesSpec._
   import scala.concurrent.ExecutionContext.Implicits.global
   "Full spec" should {
     "initialize order if not existing" in {
@@ -97,7 +96,7 @@ class FuturesSpec extends UnitSpec with ScalaFutures{
   }
 }
 
-private[exercises] object FuturesSpec{
+private[answers] object FuturesSpec{
 
   case class Item(name: String)
   case class Order(id: String, items: Seq[Item] = Seq.empty){
@@ -107,14 +106,36 @@ private[exercises] object FuturesSpec{
   class OrderRepository() {
     var orders: Set[Order] = Set.empty
     // do not save order here just yet
-    def getOrInitializeOrderById(id: String)(implicit ec: ExecutionContext): Future[Order] = ???
+    def getOrInitializeOrderById(id: String)(implicit ec: ExecutionContext): Future[Order] =
+      Future.successful(orders.find(_.id ==id).getOrElse(Order(id)))
 
-    def saveOrder(order: Order)(implicit ec: ExecutionContext): Future[Unit] = ???
+    def saveOrder(order: Order)(implicit ec: ExecutionContext): Future[Unit] = {
+      orders = orders + order
+      Future.successful(Unit)
+    }
+
   }
 
 
   class CheckoutController(orderRepository: OrderRepository, stockRepositoryACL: StockRepositoryACL){
-    def addItemToCart(orderId: String, item: Item)(implicit ec: ExecutionContext): Future[CheckoutController.AddItemResult] = ???
+    def addItemToCart(orderId: String, item: Item)(implicit ec: ExecutionContext): Future[CheckoutController.AddItemResult] = {
+
+      orderRepository.getOrInitializeOrderById(orderId).flatMap { order =>
+        stockRepositoryACL.reserveItem(item.name).flatMap {
+          case NotEnoughItems => Future.successful(ItemCannotBeAdded)
+          case ReservationSuccessful=>  performSafeSave(order, item: Item)
+        }
+      }
+    }
+
+    private def performSafeSave(order: Order, item: Item)(implicit ec: ExecutionContext): Future[CheckoutController.AddItemResult] = {
+      orderRepository.saveOrder(order.appendItem(item)).map(_ => ItemAdded).andThen{
+        case Failure(ex) => stockRepositoryACL.removeReservation(item.name)
+        case _ =>
+      }.recover{
+        case ex: Throwable => ExecutionError
+      }
+    }
   }
 
   object CheckoutController{
@@ -126,8 +147,10 @@ private[exercises] object FuturesSpec{
 
 
   class StockRepositoryACL(stockRepostiory: LegacyStockRepostiory){
-    def reserveItem(itemName: String)(implicit ec: ExecutionContext): Future[ReserveItemResult] = ???
-    def removeReservation(itemName: String)(implicit ec: ExecutionContext): Future[Unit] = ???
+    def reserveItem(itemName: String)(implicit ec: ExecutionContext): Future[ReserveItemResult] =
+      Future(stockRepostiory.reserveItem(itemName)).map(_ => ReservationSuccessful).recover{ case _: Throwable => NotEnoughItems}
+    def removeReservation(itemName: String)(implicit ec: ExecutionContext): Future[Unit] =
+      Future(stockRepostiory.removeReservation(itemName))
   }
 
   object StockRepositoryACL{
