@@ -1,35 +1,138 @@
 package workshops.asynchronous.part1.exercises
 
+import org.scalatest.concurrent.ScalaFutures
 import workshops.UnitSpec
+import workshops.asynchronous.part1.exercises.FuturesSpec.StockRepositoryACL.ReserveItemResult
+import workshops.asynchronous.part1.exercises.FuturesSpec.{Order, OrderRepository}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+class FuturesSpec extends UnitSpec with ScalaFutures{
+  import workshops.asynchronous.part1.exercises.FuturesSpec._
+  "Full spec" should {
+    "initialize order if not existing" in {
+      val repo = new OrderRepository()
 
-class FuturesSpec extends UnitSpec{
+      whenReady(repo.getOrInitializeOrderById("id")){ order =>
+        order mustBe Order(id = "id", items = Seq.empty)
+      }
+    }
+    "return existing order if saved to the database" in {
+      val expectedOrder = Order("id", items = Seq(Item("item")))
+      val repo = new OrderRepository()
 
+      whenReady(repo.getOrInitializeOrderById("id")){ order =>
+        order mustBe expectedOrder
+      }
+    }
+
+    "reserve item that is in the database with stock repository" in {
+      val initialStock = Map( "item" -> 1)
+      val legacyStockRepostiory = new LegacyStockRepostiory(initialStock)
+      val stockRepositoryACL = new StockRepositoryACL(legacyStockRepostiory)
+
+      whenReady(stockRepositoryACL.reserveItem("item")){ result =>
+        result mustBe StockRepositoryACL.ReservationSuccessful
+      }
+    }
+
+    "fail with reservation if item has not enough stock" in {
+      val initialStock = Map[String, Int]()
+      val legacyStockRepostiory = new LegacyStockRepostiory(initialStock)
+      val stockRepositoryACL = new StockRepositoryACL(legacyStockRepostiory)
+
+      whenReady(stockRepositoryACL.reserveItem("item")){ result =>
+        result mustBe StockRepositoryACL.NotEnoughItems
+      }
+    }
+
+    "add item to cart if everything goes well" in {
+      val initialStock = Map("item" -> 1)
+      val legacyStockRepostiory = new LegacyStockRepostiory(initialStock)
+      val stockRepositoryACL = new StockRepositoryACL(legacyStockRepostiory)
+      val repo = new OrderRepository()
+      val controller = new CheckoutController(repo, stockRepositoryACL)
+
+      whenReady(controller.addItemToCart("id", Item("item"))){ result =>
+        result mustBe CheckoutController.ItemAdded
+
+        repo.orders mustBe Set(Order("id", Seq(Item("item"))))
+      }
+    }
+
+    "fail when stock is not enough" in {
+      val initialStock = Map("item" -> 1)
+      val legacyStockRepostiory = new LegacyStockRepostiory(initialStock)
+      val stockRepositoryACL = new StockRepositoryACL(legacyStockRepostiory)
+      val repo = new OrderRepository()
+      val controller = new CheckoutController(repo, stockRepositoryACL)
+
+      whenReady(controller.addItemToCart("id", Item("anotherItem"))){ result =>
+        result mustBe CheckoutController.ItemAdded
+
+        repo.orders mustBe Set.empty
+      }
+    }
+
+    "release stock in case of problems with saving order" in {
+      val initialStock = Map("item" -> 1)
+      val legacyStockRepostiory = new LegacyStockRepostiory(initialStock)
+      val stockRepositoryACL = new StockRepositoryACL(legacyStockRepostiory)
+      val repo = OrderRepositoryWhichFailsOnSave
+      val controller = new CheckoutController(repo, stockRepositoryACL)
+
+      whenReady(controller.addItemToCart("id", Item("item"))){ result =>
+        result mustBe CheckoutController.ExecutionError
+
+        legacyStockRepostiory.currentStock mustBe initialStock
+      }
+    }
+  }
 }
 
-object FuturesSpec{
+private[exercises] object FuturesSpec{
 
-  case class Item(name: String, price: Int)
-  case class Discount(value: Int)
-  case class Order(id: String, items: Seq[Item], discounts: Seq[Discount])
+  case class Item(name: String)
+  case class Order(id: String, items: Seq[Item] = Seq.empty)
 
-  class OrderRepository(initialOrders: Seq[Order]){
-    def getOrInitializeOrderById(id: String): Future[Order] = ???
+  class OrderRepository() {
+    var orders: Set[Order] = Set.empty
+    // do not save order here just yet
+    def getOrInitializeOrderById(id: String)(implicit ec: ExecutionContext): Future[Order] = ???
 
+    def saveOrder(order: Order)(implicit ec: ExecutionContext): Future[Unit] = ???
   }
 
-  object OrderService{
-    def orderTodalPrice(order: Order): Int = itemsTotalPrice(order.items) - discountTotal(order.discounts)
-    def itemsTotalPrice(items: Seq[Item]): Int = items.map(_.price).sum
-    def discountTotal(discounts: Seq[Discount]): Int = discounts.map(_.value).sum
+
+  class CheckoutController(orderRepository: OrderRepository, stockRepositoryACL: StockRepositoryACL){
+    def addItemToCart(orderId: String, item: Item)(implicit ec: ExecutionContext): Future[CheckoutController.AddItemResult] = ???
   }
 
+  object CheckoutController{
+    sealed trait AddItemResult
+    case object ItemAdded extends AddItemResult
+    case object ItemCannotBeAdded extends AddItemResult
+    case object ExecutionError extends AddItemResult
+  }
+
+
+  class StockRepositoryACL(stockRepostiory: LegacyStockRepostiory){
+    def reserveItem(itemName: String)(implicit ec: ExecutionContext): Future[ReserveItemResult] = ???
+    def removeReservation(itemName: String)(implicit ec: ExecutionContext): Future[Unit] = ???
+  }
+
+  object StockRepositoryACL{
+    sealed trait ReserveItemResult
+    case object ReservationSuccessful extends ReserveItemResult
+    case object NotEnoughItems extends ReserveItemResult
+  }
+
+  class NotEnoughItemsException extends Exception("not enouth items!")
   class LegacyStockRepostiory(initialStock: Map[String, Int]){
-    private var currentStock = initialStock
+    var currentStock = initialStock
 
     def reserveItem(itemName: String): Unit = {
-      currentStock = currentStock ++ Map(itemName -> (initialStock(itemName) -1))
+      val currentItemsNumber = currentStock.lift(itemName).getOrElse(throw new NotEnoughItemsException)
+      currentStock = currentStock ++ Map(itemName -> (currentItemsNumber-1))
     }
 
     def removeReservation(itemName: String): Unit = {
@@ -37,10 +140,7 @@ object FuturesSpec{
     }
   }
 
-  object DiscountCalculator{
-    def calculateDiscount(items: Seq[Item]): Discount = {
-      if(OrderService.itemsTotalPrice(items) > 50) Discount(5)
-      else Discount(0)
-    }
+  case object OrderRepositoryWhichFailsOnSave extends OrderRepository{
+    override def saveOrder(order: Order)(implicit ec: ExecutionContext): Future[Unit] = Future.failed(new Exception("Database exception"))
   }
 }
