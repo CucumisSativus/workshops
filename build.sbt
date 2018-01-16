@@ -14,6 +14,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
   "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion,
   "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
-
+  "io.monix" %% "monix" % "2.3.0",
   "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 )

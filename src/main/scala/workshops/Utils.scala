@@ -45,5 +45,8 @@ object Utils {
     println()
   }
 
+  def emptyLine(count: Int = 1):Unit ={
+    (1 to count).foreach(_ => println())
+  }
   def blockUntilFutureReady(f: Future[_]): Unit = Await.ready(f, defaultTimeout)
 }
