@@ -11,7 +11,7 @@ import scala.util.{Success, Failure}
 import scala.concurrent.duration._
 import workshops.Utils._
 
-object Intro {
+object AAIntro {
   // Instead of scala.concurrent.ExecutionContext
   import monix.execution.Scheduler.Implicits.global
   /**
