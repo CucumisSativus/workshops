@@ -2,7 +2,7 @@ name := "workshops"
 
 version := "1.0"
 
-scalaVersion := "2.12.1"
+scalaVersion := "2.12.3"
 
 val akkaHttpVersion = "10.0.5"
 resolvers += Resolver.sonatypeRepo("releases")
