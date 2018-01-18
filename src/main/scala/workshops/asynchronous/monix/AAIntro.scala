@@ -36,7 +36,7 @@ object AAIntro {
       println("!!!!!!!we should never get there!!!!!!!!!")
       println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
       42
-    }.asyncBoundary
+    }
 
     val cancellable = veryLongTask.runAsync
 

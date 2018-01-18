@@ -4,7 +4,7 @@ import org.scalatest.concurrent.ScalaFutures
 import workshops.UnitSpec
 import workshops.asynchronous.part1.exercises.FuturesSpec.CheckoutController.{ExecutionError, ItemAdded, ItemCannotBeAdded}
 import workshops.asynchronous.part1.exercises.FuturesSpec.StockRepositoryACL.{NotEnoughItems, ReservationSuccessful, ReserveItemResult}
-import workshops.asynchronous.part1.exercises.FuturesSpec.{Order, OrderRepository}
+import workshops.asynchronous.part1.exercises.FuturesSpec.{Order, OrderRepositoryImp}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
@@ -13,7 +13,7 @@ class FuturesSpec extends UnitSpec with ScalaFutures{
   import scala.concurrent.ExecutionContext.Implicits.global
   "Full spec" should {
     "initialize order if not existing" in {
-      val repo = new OrderRepository()
+      val repo = new OrderRepositoryImp()
 
       whenReady(repo.getOrInitializeOrderById("id")){ order =>
         order mustBe Order(id = "id", items = Seq.empty)
@@ -21,7 +21,7 @@ class FuturesSpec extends UnitSpec with ScalaFutures{
     }
     "return existing order if saved to the database" in {
       val expectedOrder = Order("id", items = Seq(Item("item")))
-      val repo = new OrderRepository()
+      val repo = new OrderRepositoryImp()
       repo.orders = Set(expectedOrder)
 
       whenReady(repo.getOrInitializeOrderById("id")){ order =>
@@ -55,7 +55,7 @@ class FuturesSpec extends UnitSpec with ScalaFutures{
       val initialStock = Map("item" -> 1)
       val legacyStockRepostiory = new LegacyStockRepostiory(initialStock)
       val stockRepositoryACL = new StockRepositoryACL(legacyStockRepostiory)
-      val repo = new OrderRepository()
+      val repo = new OrderRepositoryImp()
       val controller = new CheckoutController(repo, stockRepositoryACL)
 
       whenReady(controller.addItemToCart("id", Item("item"))){ result =>
@@ -70,7 +70,7 @@ class FuturesSpec extends UnitSpec with ScalaFutures{
       val initialStock = Map("item" -> 1)
       val legacyStockRepostiory = new LegacyStockRepostiory(initialStock)
       val stockRepositoryACL = new StockRepositoryACL(legacyStockRepostiory)
-      val repo = new OrderRepository()
+      val repo = new OrderRepositoryImp()
       val controller = new CheckoutController(repo, stockRepositoryACL)
 
       whenReady(controller.addItemToCart("id", Item("anotherItem"))){ result =>
@@ -104,7 +104,14 @@ private[exercises] object FuturesSpec{
     def appendItem(item: Item): Order = copy(items = items :+ item)
   }
 
-  class OrderRepository() {
+
+  trait OrderRepository{
+    def getOrInitializeOrderById(id: String)(implicit ec: ExecutionContext): Future[Order]
+
+    def saveOrder(order: Order)(implicit ec: ExecutionContext): Future[Unit]
+  }
+
+  class OrderRepositoryImp() {
     var orders: Set[Order] = Set.empty
     // do not save order here just yet
     def getOrInitializeOrderById(id: String)(implicit ec: ExecutionContext): Future[Order] = ???
@@ -150,7 +157,7 @@ private[exercises] object FuturesSpec{
     }
   }
 
-  case object OrderRepositoryWhichFailsOnSave extends OrderRepository{
+  case object OrderRepositoryWhichFailsOnSave extends OrderRepositoryImp{
     override def saveOrder(order: Order)(implicit ec: ExecutionContext): Future[Unit] = Future.failed(new Exception("Database exception"))
   }
 }
