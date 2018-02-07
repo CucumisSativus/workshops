@@ -111,7 +111,7 @@ private[exercises] object FuturesSpec{
     def saveOrder(order: Order)(implicit ec: ExecutionContext): Future[Unit]
   }
 
-  class OrderRepositoryImp() {
+  class OrderRepositoryImp() extends OrderRepository {
     var orders: Set[Order] = Set.empty
     // do not save order here just yet
     def getOrInitializeOrderById(id: String)(implicit ec: ExecutionContext): Future[Order] = ???
