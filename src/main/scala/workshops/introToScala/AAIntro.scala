@@ -26,9 +26,14 @@ object AAIntro {
       else "nonNegative" //comment this line and see that this wont compile!
     }
 
+    println("Welcome to scala!")
 
     def methodWhichAcceptsAFunctionAsParameter(f: Int => String, arg: Int): String = {
       f(arg)
+    }
+
+    def aMethodWhichReturnsAFunction: Double => Int = {
+      (a: Double) => a.toInt
     }
 
     /*
@@ -79,7 +84,7 @@ object AAIntro {
     class SomeClass(arg: String)
     class ExtendedClass extends SomeClass("arg")
 
-    object ASingleton{
+    object ASingleton{ //an object is a nice place to organize your functions
       def aMethodFromSingleton: Int = 42
     }
 
