@@ -98,5 +98,6 @@ object AAIntro {
     caseClassInstance.field2
 
     val newCaseClassInstance = caseClassInstance.copy(field2 = 3)
+
   }
 }
