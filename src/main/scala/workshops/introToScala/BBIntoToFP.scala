@@ -82,6 +82,9 @@ object BBIntoToFP {
     val userWithEmailEmailLength = userWithEmail.email.map(_.length)
     val userWithoutEmailEmailLength = userWithoutEmail.email.map(_.length)
 
+    println(s"User with email email length $userWithEmailEmailLength")
+    println(s"User without email email length $userWithoutEmailEmailLength")
+
     val userWithInvalidEmail = User("name1", Some("not_valid"))
 
     val getDomainFromValidEmail: String => Option[String] = arg =>
@@ -95,6 +98,23 @@ object BBIntoToFP {
     println(s"user with email $userWithEmail domain $firstUserEmailDomain")
     println(s"user without email $userWithoutEmail domain $secondUserEmailDomain")
     println(s"user with invalid email $userWithInvalidEmail domain $thirdUserEmailDomain")
+
+    val noneGetOrElse = None.getOrElse(">>else<<")
+    val someGetOrElse = Some("some").getOrElse(">>else<<")
+    println(s"None get or else result $noneGetOrElse, some get or else $someGetOrElse")
+
+
+    // optionals with list
+
+    printWithHeader("Optional with list")
+
+    val anotherList = List(1,2,3,4,5)
+
+    val existingElement: Option[Int] = anotherList.find{element => element == 3} // anonymous function
+    val nonExistingElement: Option[Int] = anotherList.find(_ == 6) // or some sugar
+
+    println(s"non existing element - $nonExistingElement")
+    println(s"existing element - $existingElement")
   }
 
 

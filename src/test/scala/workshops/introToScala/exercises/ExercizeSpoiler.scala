@@ -1,6 +1,6 @@
-package workshops.introToScala.exercizes
+package workshops.introToScala.exercises
 
-import workshops.introToScala.exercizes.BasicsSpec.BetterLdap
+import workshops.introToScala.exercises.BasicsSpec.BetterLdap
 
 
 /* ======================================
