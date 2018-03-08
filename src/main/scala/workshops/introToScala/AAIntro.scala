@@ -12,17 +12,17 @@ object AAIntro {
     val anotherValue = 10 // notice no type here, compiler already knows what tu choose
 
 
-    val function : Int => String = argument => argument.toString // function which transforms integer into string
+    val function: Int => String = { argument => argument.toString } // function which transforms integer into string
 
     val result: String = function(5) // shorter syntax for function.apply(5)
 
     def aMethod(arg1: String, arg2: Double): String = s"$arg1 - ${arg2.toString}"
 
-    aMethod("arg",1.0d)
+    aMethod("arg", 1.0d)
     aMethod(arg1 = "arg", arg2 = 1.0d) //named parameters
 
     def abitLongerMethod(arg1: Int): String = {
-      if(arg1 > 0) "Negative"
+      if (arg1 > 0) "Negative"
       else "nonNegative" //comment this line and see that this wont compile!
     }
 
@@ -33,15 +33,16 @@ object AAIntro {
     }
 
     def aMethodWhichReturnsAFunction: Double => Int = {
-      (a: Double) => a.toInt
+      a: Double => a.toInt
     }
 
     /*
     >> Classes <<
      */
-    class Class1(constructorArg1: String, constructorArg2: Int){
+    class Class1(constructorArg1: String, constructorArg2: Int) {
       // this is constructor body :O
       private val aClassVariable = constructorArg2.toString
+
       def classMethod1 = constructorArg1
     }
 
@@ -49,7 +50,7 @@ object AAIntro {
     newInstance1.classMethod1
 
 
-    class Class2(val constructorArg: String){
+    class Class2(val constructorArg: String) {
       def method: String = s"This is constructor arg $constructorArg"
     }
 
@@ -64,13 +65,12 @@ object AAIntro {
     newInstance3.constructorArg = "new value" //setter
 
 
-
-    trait Animal{ // interface
+    trait Animal { // interface
       def makeNoise: String
     }
 
-    trait WithLegs{
-      def move: Unit
+    trait WithLegs {
+      def move: Unit // Unit is void in most of languages
     }
 
     class Dog extends Animal with WithLegs {
@@ -84,8 +84,8 @@ object AAIntro {
     class SomeClass(arg: String)
     class ExtendedClass extends SomeClass("arg")
 
-    object ASingleton{ //an object is a nice place to organize your functions
-      def aMethodFromSingleton: Int = 42
+    object ASingleton { //an object is a nice place to organize your functions
+      def aMethodFromSingleton: Int = { 42 }
     }
 
     ASingleton.aMethodFromSingleton
@@ -98,6 +98,5 @@ object AAIntro {
     caseClassInstance.field2
 
     val newCaseClassInstance = caseClassInstance.copy(field2 = 3)
-
   }
 }
