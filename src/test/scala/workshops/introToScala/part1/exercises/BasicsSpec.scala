@@ -1,4 +1,4 @@
-package workshops.introToScala.answers
+package workshops.introToScala.part1.exercises
 
 import java.util.UUID
 
@@ -119,22 +119,19 @@ object BasicsSpec {
     // - create new user object with id, email and password
     // - add new user to users
     def addNewUser(email: String, password: String): String = {
-      val id = superSecureGenerator()
-      users = users :+ User(id, email, password)
-      id
+      ???
     }
 
     // - check if potential user's email and password are equal to expected
     private def validateUser(expectedemail: String, expectedPassword: String)(potentialUser: User): Boolean = {
-      potentialUser.email == expectedemail && potentialUser.password == expectedPassword
+      ???
     }
 
     // - find user using validateUser function
     // - create a function which takes user and creates new session
     // - create new Session with foundUser id, if user was found
     def getUserSession(email: String, password: String): Option[Session] = {
-      val newSession: User => Session = user => Session(user.id)
-      users.find(validateUser(email, password)).map(newSession)
+      ???
     }
 
 
@@ -146,12 +143,7 @@ object BasicsSpec {
     // - - add user with token to the users list
     // - - send email using email service (send email singleton method)
     def askForPasswordResetEmail(email: String): Unit = {
-      val possibleUser = users.find(_.email == email)
-      possibleUser.foreach{ user =>
-        val token = superSecureGenerator()
-        users = users.filter(_ != user) :+ user.copy(resetPasswordToken = Some(token))
-        EmailService.sendEmailResetPasswordEmail(email)
-      }
+      ???
     }
 
     // - find a user with given token (note the types!)
@@ -160,24 +152,16 @@ object BasicsSpec {
     // - - remove old user from the users list
     // - - add user with new password to users list
     def resetPassword(token: String, newPassword: String): String = {
-      users.find(_.resetPasswordToken == Some(token))
-        .map{ user =>
-          users = users.filter(_ != user) :+ user.copy(password = newPassword)
-          "Success!"
-        }.getOrElse("Failure!")
+      ???
     }
 
 
     // - find user with with given email and password (use validateUser method)
     // - if user is found check if she/he is an admin
     def doSomeAdminStuff(email: String, password: String): String = {
-      users.find(validateUser(email, password))
-        .flatMap{ user =>
-          if(isAdmin(user)) Some("Admin stuff")
-          else Some("Rejected!")
-        }.getOrElse("User not found!")
+      ???
     }
-  }
+ }
 
   object EmailService{
     private var sentEmail: Option[String] = None
@@ -192,13 +176,7 @@ object BasicsSpec {
   }
 
 
-  object ExercizeSpoiler {
-    def getUsersResetPasswordToken(ldap: BetterLdap, email: String) : Option[String] ={
-      ldap.users.find(_.email == email).flatMap(_.resetPasswordToken)
-    }
 
-    def getUsersPassword(ldap: BetterLdap, email: String): String = {
-      ldap.users.find(_.email == email).map(_.password).get
-    }
-  }
 }
+
+

@@ -1,4 +1,4 @@
-package workshops.introToScala
+package workshops.introToScala.part1
 
 object BBIntoToFP {
   import workshops.Utils._

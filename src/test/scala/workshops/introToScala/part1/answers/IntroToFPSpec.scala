@@ -1,4 +1,4 @@
-package workshops.introToScala.exercises
+package workshops.introToScala.part1.answers
 
 import workshops.UnitSpec
 
@@ -9,7 +9,7 @@ class IntroToFPSpec extends UnitSpec{
         base + toAdd
       }
 
-      val addTwo: Int => Int = ???
+      val addTwo: Int => Int = methodWithTwoArguments(2)
 
       addTwo(2) mustBe 4
     }
@@ -19,7 +19,7 @@ class IntroToFPSpec extends UnitSpec{
         number1 + number2
       }
 
-      val addThree: Int => Int = ???
+      val addThree: Int => Int = addNumbers(3, _)
 
       addThree(2) mustBe 5
 
@@ -28,7 +28,7 @@ class IntroToFPSpec extends UnitSpec{
     "be able to add an element at the end of the list" in {
       val baseList = List(1,2,3)
 
-      val newList: List[Int] = ???
+      val newList = baseList :+ 4
 
       newList mustBe List(1,2,3,4)
     }
@@ -36,7 +36,7 @@ class IntroToFPSpec extends UnitSpec{
     "be able to add an element in front of the list" in {
       val baseList = List(1,2,3)
 
-      val newList : List[Int] = ???
+      val newList = 0 +: baseList
 
       newList mustBe List(0, 1,2,3)
     }
@@ -44,8 +44,8 @@ class IntroToFPSpec extends UnitSpec{
     "be able to get head and tail of the list" in {
       val list = List(1,2,3,4)
 
-      val head : Int = ???
-      val tail : List[Int] = ???
+      val head = list.head
+      val tail = list.tail
 
       head mustBe 1
       tail mustBe List(2,3,4)
@@ -54,7 +54,7 @@ class IntroToFPSpec extends UnitSpec{
     "be able to filter even number from the list" in {
       val list = List(1,2,3,4,5,6,7,8)
 
-      val evenNumbers: List[Int] = ???
+      val evenNumbers = list.filter(_ % 2 == 0)
 
       evenNumbers mustBe List(2,4,6,8)
     }
@@ -62,7 +62,7 @@ class IntroToFPSpec extends UnitSpec{
     "be able to increase every element in the list by 1" in {
       val list = List(1,2,3,4,5)
 
-      val increased: List[Int] = ???
+      val increased = list.map(_ +1)
 
       increased mustBe List(2,3,4,5,6)
     }
@@ -71,7 +71,7 @@ class IntroToFPSpec extends UnitSpec{
       val list = List(1,2,3,4)
 
       def increaseBy(by: Int, element: Int): Int = {
-        ???
+        element + by
       }
 
       val newList = list.map(increaseBy(3, _))
@@ -82,10 +82,11 @@ class IntroToFPSpec extends UnitSpec{
       val list = List(1,2,3,4,5,6)
 
       def tripleElementIfEven(el: Int): List[Int] = {
-        ???
+        if(el % 2 == 0) List(el, el, el)
+        else List()
       }
 
-      val newList: List[Int] = list.flatMap(tripleElementIfEven)
+      val newList = list.flatMap(tripleElementIfEven)
 
       newList mustBe List(2,2,2, 4,4,4, 6,6,6)
     }
@@ -98,7 +99,7 @@ class IntroToFPSpec extends UnitSpec{
         User(2, "email2@example.com")
       )
 
-      val foundUser: Option[User] = ???
+      val foundUser = users.find(_.email == "email1@example.com")
       foundUser mustBe Some(User(1, "email1@example.com"))
     }
 
@@ -113,7 +114,7 @@ class IntroToFPSpec extends UnitSpec{
       )
 
       def extractEmail(users: List[User])(id: Int): Option[Email] ={
-        ???
+        users.find(_.id == id).map(user => Email(user.email))
       }
 
       extractEmail(users)(1) mustBe Some(Email("email1@example.com"))
