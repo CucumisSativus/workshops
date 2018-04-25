@@ -3,15 +3,17 @@ import workshops.Utils._
 object AAPatternMatchingIntro {
   def main(args: Array[String]): Unit = {
     // just a better switch
-    val number = 5
-
-    val result1 = number match {
+    def matchAsSwitch(number: Int) = number match {
       case 5 => "five!"
+      case 4 | 6 => "four or six!"
       case _ => "not five!"
     }
 
     printWithHeader("Pattern matching as switch")
-    println(result1)
+    println(matchAsSwitch(5))
+    println(matchAsSwitch(4))
+    println(matchAsSwitch(6))
+    println(matchAsSwitch(7))
 
     def checkString(string: String): String = { //show how we can ommit this ugly brace
       string match {
