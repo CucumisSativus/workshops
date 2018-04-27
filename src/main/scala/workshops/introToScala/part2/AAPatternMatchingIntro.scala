@@ -15,7 +15,7 @@ object AAPatternMatchingIntro {
     println(matchAsSwitch(6))
     println(matchAsSwitch(7))
 
-    def checkString(string: String): String = { //show how we can ommit this ugly brace
+    def checkString(string: String): String = { //show how we can omit this ugly brace
       string match {
         case "simple" => "found simple string"
         case str if str.length > 2 => "string has more than 2 characters"
@@ -97,5 +97,10 @@ object AAPatternMatchingIntro {
     println(matchWholePattern(Postcard(User("Adi", "Shamir"), Content("Thanks for RSA!"))))
 
 
+    printWithHeader("Pattern matching in map")
+
+    val list = List.tabulate(6)(index => User(s"first name $index", s"last name $index"))
+    val lastNames = list.map{ case(User(firstName, lastName)) => lastName}
+    println(lastNames)
   }
 }
