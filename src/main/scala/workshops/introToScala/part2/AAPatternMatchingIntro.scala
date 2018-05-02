@@ -102,5 +102,6 @@ object AAPatternMatchingIntro {
     val list = List.tabulate(6)(index => User(s"first name $index", s"last name $index"))
     val lastNames = list.map{ case(User(firstName, lastName)) => lastName}
     println(lastNames)
+
   }
 }

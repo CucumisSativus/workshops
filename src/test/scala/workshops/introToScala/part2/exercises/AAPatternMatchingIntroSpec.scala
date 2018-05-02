@@ -45,5 +45,51 @@ class AAPatternMatchingIntroSpec extends UnitSpec{
       getPriceForUser(Order(User("Peter G. Neumann"), Item("Architecture book", 300))) mustBe "Peter G. Neumann - 300"
 
     }
+
+    "be able to pattern match on a list" in {
+
+      def canBeATriangle(list: List[Int]): String = list match{
+        case first :: second :: last :: Nil if last < (first + second) => "Can be a triangle!"
+        case first :: second :: last :: Nil if last >= (first + second) => s"The longest side - $last is too short"
+        case l if l.length < 3 => "Not enough elements to check"
+        case l if l.length > 3 => "To many sides for a triangle!"
+      }
+
+      // for simplicity the last element is the longest one
+      canBeATriangle(List()) mustBe "Not enough elements to check"
+      canBeATriangle(List(1)) mustBe "Not enough elements to check"
+      canBeATriangle(List(1,2)) mustBe "Not enough elements to check"
+      canBeATriangle(List(1,2,3)) mustBe "The longest side - 3 is too short"
+      canBeATriangle(List(2,3,4)) mustBe "Can be a triangle!"
+      canBeATriangle(List(1,2,3,4)) mustBe "To many sides for a triangle!"
+      canBeATriangle(List(1,1,2,3,5)) mustBe "To many sides for a triangle!"
+    }
+
+    "be able to pattern match in map" in {
+      case class Triangle(first: Int, second: Int, longest: Int)
+
+      def getValidTriangles(triangles: List[Triangle]): List[Triangle] = {
+        triangles.filter{ case Triangle(first, second, longest) =>
+            longest < (first + second)
+        }
+      }
+
+      val list = List(
+        Triangle(1,1,1),
+        Triangle(1,2,3),
+        Triangle(3,4,5),
+        Triangle(1,1,4),
+        Triangle(5,6,7)
+      )
+
+      val expected = List(
+        Triangle(1,1,1),
+        Triangle(3,4,5),
+        Triangle(5,6,7)
+      )
+
+
+      getValidTriangles(list) mustBe expected
+    }
   }
 }
