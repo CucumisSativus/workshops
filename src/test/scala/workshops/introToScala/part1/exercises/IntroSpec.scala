@@ -1,4 +1,4 @@
-package workshops.introToScala.exercises
+package workshops.introToScala.part1.exercises
 
 import workshops.UnitSpec
 
