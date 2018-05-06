@@ -1,11 +1,15 @@
-package workshops.introToScala.part2.exercises
+package workshops.introToScala.part2.answers
 
 import workshops.UnitSpec
 
 class AAPatternMatchingIntroSpec extends UnitSpec{
   "a scala adept" should {
     "be able to use pattern matching as a switch" in {
-      def patternMatchingAsSwitch(arg: Int): String = ???
+      def patternMatchingAsSwitch(arg: Int): String = arg match {
+        case 5 => "five!"
+        case 3 => "three!"
+        case _ => "something else!"
+      }
 
       patternMatchingAsSwitch(5) mustBe "five!"
       patternMatchingAsSwitch(3) mustBe "three!"
@@ -16,7 +20,11 @@ class AAPatternMatchingIntroSpec extends UnitSpec{
     "be able to deconstruct case class" in {
       case class User(name: String, age: Int)
 
-      def greetUser(user: User): String = ???
+      def greetUser(user: User): String = user match {
+        case User("Admin", _) => "Admin super user!"
+        case User(name, age) if age > 18 => s"Hello $name"
+        case User(name, age) => s"$name is too young"
+      }
 
       greetUser(User("Whitfield Diffie", 74)) mustBe "Hello Whitfield Diffie"
       greetUser(User("Martin Hellman", 73)) mustBe "Hello Martin Hellman"
@@ -29,7 +37,9 @@ class AAPatternMatchingIntroSpec extends UnitSpec{
       case class Item(name: String, price: Int)
       case class Order(user: User, item: Item)
 
-      def getPriceForUser(order: Order): String = ???
+      def getPriceForUser(order: Order): String = order match {
+        case Order(User(name), Item(_, price)) => s"$name - $price"
+      }
 
       getPriceForUser(Order(User("Margaret Hamilton"), Item("Apollo rocket", 120))) mustBe "Margaret Hamilton - 120"
       getPriceForUser(Order(User("Peter G. Neumann"), Item("Architecture book", 300))) mustBe "Peter G. Neumann - 300"
@@ -38,7 +48,12 @@ class AAPatternMatchingIntroSpec extends UnitSpec{
 
     "be able to pattern match on a list" in {
 
-      def canBeATriangle(list: List[Int]): String = ???
+      def canBeATriangle(list: List[Int]): String = list match{
+        case first :: second :: last :: Nil if last < (first + second) => "Can be a triangle!"
+        case first :: second :: last :: Nil if last >= (first + second) => s"The longest side - $last is too short"
+        case l if l.length < 3 => "Not enough elements to check"
+        case l if l.length > 3 => "To many sides for a triangle!"
+      }
 
       // for simplicity the last element is the longest one
       canBeATriangle(List()) mustBe "Not enough elements to check"
@@ -54,7 +69,9 @@ class AAPatternMatchingIntroSpec extends UnitSpec{
       case class Triangle(first: Int, second: Int, longest: Int)
 
       def getValidTriangles(triangles: List[Triangle]): List[Triangle] = {
-        ???
+        triangles.filter{ case Triangle(first, second, longest) =>
+          longest < (first + second)
+        }
       }
 
       val list = List(
