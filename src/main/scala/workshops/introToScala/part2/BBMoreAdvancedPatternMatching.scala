@@ -3,6 +3,19 @@ import workshops.Utils._
 object BBMoreAdvancedPatternMatching {
   def main(args: Array[String]): Unit = {
 
+    printWithHeader("Using apply to create fancy constructor")
+    class AnOldFashionedClass(argument: String){
+      def shout: String = argument + "!"
+    }
+
+    object AnOldFashionedClass{
+      def apply(argument: String): AnOldFashionedClass = new AnOldFashionedClass(argument)
+    }
+
+    val instance1 = new AnOldFashionedClass("argument")
+    val instance2 = AnOldFashionedClass("argument2")
+
+    printWithHeader("Turning simple class into almost case class")
     class SimpleClass(initialState: Int){
       private var state = initialState
 
@@ -16,9 +29,7 @@ object BBMoreAdvancedPatternMatching {
     }
 
 
-    printWithHeader("Turning simple class into almost case class")
-
-    val instance = SimpleClass(1)
+    val instance = SimpleClass(1) //Note this syntax!
     instance.increment()
     instance.increment()
 
@@ -28,6 +39,7 @@ object BBMoreAdvancedPatternMatching {
 
     println(result)
 
+    // ask why 'almost' case classes
 
     printWithHeader("Extractor pattern")
 
